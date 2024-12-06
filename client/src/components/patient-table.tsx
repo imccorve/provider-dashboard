@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { getStatusColor } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 const PatientTable = ({ data }) => {
   if (!data?.results || data.results.length === 0) {
@@ -35,6 +37,11 @@ const PatientTable = ({ data }) => {
             <TableRow key={patient.id}>
               <TableCell className="font-medium">
                 {patient.first_name} {patient.middle_name} {patient.last_name}
+              </TableCell>
+              <TableCell>
+                <Badge className={getStatusColor(patient.status)}>
+                  {patient.status}
+                </Badge>
               </TableCell>
               <TableCell>
                 {new Date(patient.date_of_birth).toLocaleDateString()}

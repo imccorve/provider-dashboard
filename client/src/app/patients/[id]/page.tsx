@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { NavigationBar } from "@/components/header";
 import { Badge } from "@/components/ui/badge";
+import { getStatusColor } from "@/lib/utils";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -58,6 +59,11 @@ export default function PatientDetail() {
                   {patient.middle_name ? `${patient.middle_name} ` : ""}
                   {patient.last_name}
                 </h1>
+                <div className="flex items-center gap-3">
+                  <Badge className={getStatusColor(patient.status)}>
+                    {patient.status}
+                  </Badge>
+                </div>
               </div>
             </div>
           </div>
