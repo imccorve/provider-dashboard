@@ -7,6 +7,7 @@ from .models import Patient
 from .serializers import PatientSerializer
 from functools import reduce
 from rest_framework.pagination import PageNumberPagination
+from operator import and_
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
@@ -54,8 +55,4 @@ class PatientViewSet(viewsets.ModelViewSet):
         """
         queryset = super().get_queryset()
         
-        return (
-            queryset
-            .get_queryset()
-            .select_related()
-        )
+        return queryset.select_related()

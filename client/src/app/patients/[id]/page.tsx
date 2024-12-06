@@ -1,19 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import useSWR from "swr";
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Patient } from "@/types/patient";
+import EditPanel from "./components/edit-panel";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function PatientDetail() {
+  const [isEditingOpen, setIsEditingOpen] = useState(false);
   const params = useParams();
 
   const {
     data: patient,
     error,
+    mutate,
   } = useSWR<Patient>(
     `http://localhost:8000/api/patients/${params.id}/`,
     fetcher
@@ -75,6 +79,12 @@ export default function PatientDetail() {
           </div>
         </div>
       </div>
+      <EditPanel
+        patient={patient}
+        mutate={mutate}
+        isOpen={isEditingOpen}
+        onClose={() => setIsEditingOpen(false)}
+      />
     </div>
   );
 }
