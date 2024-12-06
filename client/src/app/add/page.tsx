@@ -1,13 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { NavigationBar } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { usePatientForm } from "@/hooks/usePatientForm";
 import { PatientFormFields } from "@/components/patient-form-field";
 import { useSWRConfig } from "swr";
-import { NavigationBar } from "@/components/header";
-import { FeedbackAlert } from "@/components/feedback-alert";
 import { useFeedback } from "@/hooks/useFeedback";
+import { FeedbackAlert } from "@/components/feedback-alert";
 
 export default function AddPatient() {
   const router = useRouter();
@@ -17,23 +17,13 @@ export default function AddPatient() {
   const {
     formData,
     setFormData,
-    resetForm,
+    customFieldTemplates,
     handleAddressChange,
     handlePrimaryChange,
     addAddress,
     removeAddress,
-    customFieldTemplates,
+    resetForm,
   } = usePatientForm();
-
-
-  const handleCustomFieldChange = (templateId, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      custom_fields: prev.custom_fields.map((field) =>
-        field.template_id === templateId ? { ...field, value } : field
-      ),
-    }));
-  };
 
   const handleChange = (e) => {
     const { name, value, templateId } = e.target;
@@ -46,6 +36,15 @@ export default function AddPatient() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleCustomFieldChange = (templateId, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      custom_fields: prev.custom_fields.map((field) =>
+        field.template_id === templateId ? { ...field, value } : field
+      ),
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validAddresses = formData.addresses.filter(
@@ -56,11 +55,11 @@ export default function AddPatient() {
       ...formData,
       addresses: validAddresses,
       custom_fields: formData.custom_fields
-      .filter((field) => field.value.trim())
-      .map((field) => ({
-        template_id: field.template_id,
-        value: field.value.trim(),
-      })),
+        .filter((field) => field.value.trim())
+        .map((field) => ({
+          template_id: field.template_id,
+          value: field.value.trim(),
+        })),
     };
 
     try {
@@ -78,7 +77,7 @@ export default function AddPatient() {
         showError("Failed to add patient");
       }
     } catch (error) {
-        showError("Failed to add patient");
+      showError("Failed to add patient");
     }
   };
 

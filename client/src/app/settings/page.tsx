@@ -9,8 +9,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Trash } from "lucide-react";
 import { NavigationBar } from "@/components/header";
 import { CustomFieldTemplate } from "@/types/patient";
-import { useFeedback } from "@/hooks/useFeedback";
 import { FeedbackAlert } from "@/components/feedback-alert";
+import { useFeedback } from "@/hooks/useFeedback";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -67,8 +67,9 @@ export default function ConfigureCustomFields() {
         }
 
         await mutate();
+        showSuccess("Field removed successfully");
       } catch (error) {
-        console.log(error);
+        showError("Failed to remove field");
         return;
       }
     }
@@ -120,9 +121,9 @@ export default function ConfigureCustomFields() {
       }
 
       await mutate();
-      showSuccess("Field removed successfully");
+      showSuccess("Custom fields saved successfully");
     } catch (error) {
-      showError("Failed to remove field");
+      showError("Failed to save custom fields");
     }
   };
 
