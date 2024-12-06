@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import {
     Pagination,
     PaginationContent,
@@ -126,6 +127,15 @@ export default function PatientList() {
               <SelectItem value="-last_name">Name Z-A</SelectItem>
             </SelectContent>
           </Select>
+          <DatePickerWithRange 
+              onChange={(range) => {
+                setFilters(prev => ({
+                  ...prev,
+                  date_of_birth_after: range?.from?.toISOString().split('T')[0],
+                  date_of_birth_before: range?.to?.toISOString().split('T')[0]
+                }))
+              }}
+            />
           <div className="flex gap-2">
               <Link href="/patients/add">
                 <Button variant="default">Add Patient</Button>
