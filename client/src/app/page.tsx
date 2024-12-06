@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useSWR from "swr";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -50,6 +50,7 @@ export default function PatientList() {
   
   const queryString = new URLSearchParams({
     page: currentPage.toString(),
+    page_size: "10",
     ...Object.fromEntries(
       Object.entries(filters).filter(
         ([key, value]) => value && !(key === "status" && value === "all")
@@ -64,6 +65,15 @@ export default function PatientList() {
 
   const totalPages = data ? Math.ceil(data.count / 10) : 0;
 
+  // Debounce the name search to avoid too many API calls
+  useEffect(() => {
+      const timeoutId = setTimeout(() => {
+        setFilters((prev) => ({ ...prev, name: searchTerm }));
+      }, 300);
+  
+      return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
+    
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-4 items-center justify-between">
