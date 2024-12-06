@@ -15,6 +15,10 @@ export default function AddPatient() {
     formData,
     setFormData,
     resetForm,
+    handleAddressChange,
+    handlePrimaryChange,
+    addAddress,
+    removeAddress,
   } = usePatientForm();
 
   const handleChange = (e) => {
@@ -23,10 +27,13 @@ export default function AddPatient() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    const validAddresses = formData.addresses.filter(
+      (addr) => addr.street || addr.city || addr.state || addr.zip_code
+    );
 
     const dataToSubmit = {
       ...formData,
+      addresses: validAddresses,
     };
 
     try {
@@ -56,6 +63,10 @@ export default function AddPatient() {
           <PatientFormFields
             formData={formData}
             handleChange={handleChange}
+            handleAddressChange={handleAddressChange}
+            handlePrimaryChange={handlePrimaryChange}
+            addAddress={addAddress}
+            removeAddress={removeAddress}
           />
 
           <div className="flex justify-end gap-4">

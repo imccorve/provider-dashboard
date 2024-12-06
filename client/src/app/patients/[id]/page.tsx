@@ -87,6 +87,25 @@ export default function PatientDetail() {
                 </div>
               </CardContent>
             </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {patient.addresses?.map((address) => (
+                  <div key={address.id} className="space-y-1">
+                    {address.is_primary && <Badge>Primary Address</Badge>}
+                    <p>{address.street}</p>
+                    <p>
+                      {address.city}, {address.state} {address.zip_code}
+                    </p>
+                  </div>
+                ))}
+                {patient?.addresses?.length === 0 && (
+                  <p className="text-gray-500">No addresses on file</p>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

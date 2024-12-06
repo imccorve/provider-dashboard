@@ -28,6 +28,10 @@ export default function EditPanel({
   const {
     formData,
     setFormData,
+    handleAddressChange,
+    handlePrimaryChange,
+    addAddress,
+    removeAddress,
   } = usePatientForm(patient);
 
   const handleChange = (e) => {
@@ -79,6 +83,10 @@ export default function EditPanel({
             <PatientFormFields
               formData={formData}
               handleChange={handleChange}
+              handleAddressChange={handleAddressChange}
+              handlePrimaryChange={handlePrimaryChange}
+              addAddress={addAddress}
+              removeAddress={removeAddress}
               isEditMode={true}
             />
 

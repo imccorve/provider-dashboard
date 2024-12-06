@@ -1,10 +1,11 @@
 from rest_framework import viewsets, filters
 from django.db.models import Q
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters import rest_framework as django_filters
 from django.db import models
-from .models import Patient
-from .serializers import PatientSerializer
+from .models import Patient, Address
+from .serializers import PatientSerializer, AddressSerializer
 from functools import reduce
 from rest_framework.pagination import PageNumberPagination
 from operator import and_
@@ -56,3 +57,13 @@ class PatientViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         
         return queryset.select_related()
+
+    @action(detail=True, methods=['post'])
+    def add_address(self, request, pk=None):
+        patient = self.get_object()
+        serializer = AddressSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save(patient=patient)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
