@@ -10,11 +10,13 @@ import { Plus, Trash } from "lucide-react";
 import { NavigationBar } from "@/components/header";
 import { CustomFieldTemplate } from "@/types/patient";
 import { useFeedback } from "@/hooks/useFeedback";
+import { FeedbackAlert } from "@/components/feedback-alert";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function ConfigureCustomFields() {
   const [editedFields, setEditedFields] = useState<CustomFieldTemplate[]>([]);
+  const { message, showSuccess, showError } = useFeedback();
 
   const {
     data: customFields,
@@ -26,7 +28,7 @@ export default function ConfigureCustomFields() {
   );
 
   if (error) {
-    console.log(error);
+    showError("Failed to retrieve configurable fields. Please try again.")
   }
 
   useEffect(() => {
@@ -64,7 +66,7 @@ export default function ConfigureCustomFields() {
           throw new Error("Failed to remove field");
         }
 
-        await mutate(); // Refresh the data
+        await mutate();
       } catch (error) {
         console.log(error);
         return;
@@ -118,8 +120,9 @@ export default function ConfigureCustomFields() {
       }
 
       await mutate();
+      showSuccess("Field removed successfully");
     } catch (error) {
-      console.error("Error saving fields:", error);
+      showError("Failed to remove field");
     }
   };
 

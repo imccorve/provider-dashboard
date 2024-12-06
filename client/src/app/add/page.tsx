@@ -6,10 +6,13 @@ import { usePatientForm } from "@/hooks/usePatientForm";
 import { PatientFormFields } from "@/components/patient-form-field";
 import { useSWRConfig } from "swr";
 import { NavigationBar } from "@/components/header";
+import { FeedbackAlert } from "@/components/feedback-alert";
+import { useFeedback } from "@/hooks/useFeedback";
 
 export default function AddPatient() {
   const router = useRouter();
   const { mutate } = useSWRConfig();
+  const { message, showSuccess, showError } = useFeedback();
 
   const {
     formData,
@@ -69,10 +72,13 @@ export default function AddPatient() {
 
       if (response.ok) {
         resetForm();
+        showSuccess("Patient successfully added!");
         await mutate("http://localhost:8000/api/patients/");
+      } else {
+        showError("Failed to add patient");
       }
     } catch (error) {
-      console.error("Error:", error);
+        showError("Failed to add patient");
     }
   };
 
@@ -92,6 +98,8 @@ export default function AddPatient() {
             removeAddress={removeAddress}
             customFieldTemplates={customFieldTemplates}
           />
+
+          {message && <FeedbackAlert message={message} />}
 
           <div className="flex justify-end gap-4">
             <Button
