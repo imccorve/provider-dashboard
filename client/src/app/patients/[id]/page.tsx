@@ -1,7 +1,7 @@
 "use client";
 
 import useSWR from "swr";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Patient } from "@/types/patient";
