@@ -5,11 +5,12 @@ import useSWR from "swr";
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Patient } from "@/types/patient";
+import { Patient, CustomFieldTemplate } from "@/types/patient";
 import EditPanel from "./components/edit-panel";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { NavigationBar } from "@/components/header";
+import { Badge } from "@/components/ui/badge";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -28,6 +29,11 @@ export default function PatientDetail() {
 
   if (error) return <div className="p-6">Failed to load patient</div>;
   if (!patient) return <div className="p-6">Loading...</div>;
+
+  const { data: customFieldTemplates } = useSWR<CustomFieldTemplate[]>(
+    "http://localhost:8000/api/custom-field-templates/",
+    fetcher
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -83,6 +89,17 @@ export default function PatientDetail() {
                         {new Date(patient.date_of_birth).toLocaleDateString()}
                       </p>
                     </div>
+                    {/* Custom Fields */}
+                    {patient.custom_fields?.map((field) => (
+                      <div key={field.id} className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-gray-500">
+                            {field.field_name}
+                          </Label>
+                          <p>{field.value}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </CardContent>
@@ -111,6 +128,7 @@ export default function PatientDetail() {
       </div>
       <EditPanel
         patient={patient}
+        customFieldTemplates={customFieldTemplates}
         mutate={mutate}
         isOpen={isEditingOpen}
         onClose={() => setIsEditingOpen(false)}

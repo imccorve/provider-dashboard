@@ -47,3 +47,29 @@ class Address(models.Model):
         if self.is_primary:
             self.patient.addresses.filter(is_primary=True).exclude(id=self.id).update(is_primary=False)
         super().save(*args, **kwargs)
+
+class CustomFieldTemplate(models.Model):
+    """Defines custom fields that can be added to patient records"""
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True)
+    is_required = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+class CustomField(models.Model):
+    """Stores the actual values for custom fields on patient records"""
+    patient = models.ForeignKey(Patient, related_name='custom_fields', on_delete=models.CASCADE)
+    template = models.ForeignKey(CustomFieldTemplate, related_name='values', on_delete=models.CASCADE)
+    value = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['patient', 'template']
+
+    def __str__(self):
+        return f"{self.template.name}: {self.value}"

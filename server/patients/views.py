@@ -4,8 +4,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters import rest_framework as django_filters
 from django.db import models
-from .models import Patient, Address
-from .serializers import PatientSerializer, AddressSerializer
+from .models import Patient, Address, CustomFieldTemplate
+from .serializers import PatientSerializer, AddressSerializer, CustomFieldTemplateSerializer
 from functools import reduce
 from rest_framework.pagination import PageNumberPagination
 from operator import and_
@@ -48,7 +48,7 @@ class PatientViewSet(viewsets.ModelViewSet):
     
     ordering_fields = ['created_at', 'last_name', 'first_name', 'middle_name', 'date_of_birth', 'status']
     ordering = ['-created_at']
-    search_fields = ['first_name', 'middle_name', 'last_name']
+    search_fields = ['first_name', 'middle_name', 'last_name', 'custom_fields__value']
     
     def get_queryset(self):
         """
@@ -56,7 +56,12 @@ class PatientViewSet(viewsets.ModelViewSet):
         """
         queryset = super().get_queryset()
         
-        return queryset.select_related()
+        return (
+            super()
+            .get_queryset()
+            .select_related()
+            .prefetch_related('addresses', 'custom_fields', 'custom_fields__template')
+        )
 
     @action(detail=True, methods=['post'])
     def add_address(self, request, pk=None):
@@ -67,3 +72,7 @@ class PatientViewSet(viewsets.ModelViewSet):
             serializer.save(patient=patient)
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
+
+class CustomFieldTemplateViewSet(viewsets.ModelViewSet):
+    serializer_class = CustomFieldTemplateSerializer
+    queryset = CustomFieldTemplate.objects.all()

@@ -19,6 +19,7 @@ export function PatientFormFields({
   handlePrimaryChange,
   addAddress,
   removeAddress,
+  customFieldTemplates,
   isEditMode = false,
 }) {
   return (
@@ -88,6 +89,43 @@ export function PatientFormFields({
           </div>
         </div>
       </div>
+
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold">Additional Information</h2>
+        <div className="space-y-4">
+          {customFieldTemplates?.map((template) => (
+            <div key={template.id} className="space-y-2">
+              <Label>
+                {template.name}
+                {template.is_required && (
+                  <span className="text-red-500 ml-1">*</span>
+                )}
+              </Label>
+              {template.description && (
+                <p className="text-sm text-gray-500">{template.description}</p>
+              )}
+              <Input
+                placeholder={`Enter ${template.name.toLowerCase()}`}
+                value={
+                  formData.custom_fields.find(
+                    (f) => f.template_id === template.id
+                  )?.value || ""
+                }
+                onChange={(e) =>
+                  handleChange({
+                    target: {
+                      name: "custom_fields",
+                      value: e.target.value,
+                      templateId: template.id,
+                    },
+                  })
+                }
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Addresses</h2>

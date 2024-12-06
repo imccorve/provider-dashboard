@@ -28,6 +28,7 @@ export default function EditPanel({
   const {
     formData,
     setFormData,
+    customFieldTemplates,
     handleAddressChange,
     handlePrimaryChange,
     addAddress,
@@ -35,7 +36,22 @@ export default function EditPanel({
   } = usePatientForm(patient);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev }));
+    const { name, value, templateId } = e.target;
+
+    if (name === "custom_fields") {
+      const newCustomFields = [...formData.custom_fields];
+      const fieldIndex = newCustomFields.findIndex(
+        (f) => f.template_id === templateId
+      );
+      newCustomFields[fieldIndex] = {
+        ...newCustomFields[fieldIndex],
+        value: value,
+      };
+      setFormData((prev) => ({ ...prev, custom_fields: newCustomFields }));
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = async () => {
@@ -45,6 +61,12 @@ export default function EditPanel({
       ...formData,
       created_at: undefined,
       updated_at: undefined,
+      custom_fields: formData.custom_fields
+      .filter((field) => field.value.trim())
+      .map((field) => ({
+        template_id: field.template_id,
+        value: field.value.trim(),
+      })),
     };
 
     try {
@@ -87,6 +109,7 @@ export default function EditPanel({
               handlePrimaryChange={handlePrimaryChange}
               addAddress={addAddress}
               removeAddress={removeAddress}
+              customFieldTemplates={customFieldTemplates}
               isEditMode={true}
             />
 
@@ -94,7 +117,7 @@ export default function EditPanel({
               <Button variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button onClick={handleSave}>Save Changes</Button>
+              <Button onClick={handleSave}>Save</Button>
             </div>
           </div>
         )}

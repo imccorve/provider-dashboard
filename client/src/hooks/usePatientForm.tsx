@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { CustomFieldTemplate } from '@/types/patient';
+import { useState, useEffect } from 'react';
+import useSWR from 'swr';
 
 const initialFormState = {
     first_name: "",
@@ -6,15 +8,39 @@ const initialFormState = {
     last_name: "",
     date_of_birth: "",
     status: "INQUIRY",
+    custom_fields: [],
     addresses: [{ street: "", city: "", state: "", zip_code: "", is_primary: true }],
-  };
+};
 
 export function usePatientForm(initialData = null) {
-    const [formData, setFormData] = useState(initialData || initialFormState);
+  const [formData, setFormData] = useState(initialData || initialFormState);
+
+  const { data: customFieldTemplates } = useSWR<CustomFieldTemplate[]>(
+    "http://localhost:8000/api/custom-field-templates/",
+    fetcher
+  );
+
+  useEffect(() => {
+    if (customFieldTemplates) {
+      setFormData(prev => ({
+        ...prev,
+        custom_fields: customFieldTemplates.map(template => ({
+          template_id: template.id,
+          field_name: template.name,
+          value: prev.custom_fields.find(f => f.template_id === template.id)?.value || "",
+        })),
+      }));
+    }
+  }, [customFieldTemplates]);
 
   const resetForm = () => {
     setFormData({
       ...initialFormState,
+      custom_fields: customFieldTemplates?.map(template => ({
+        template_id: template.id,
+        field_name: template.name,
+        value: "",
+      })) || [],
     });
   };
 
@@ -57,6 +83,7 @@ export function usePatientForm(initialData = null) {
   return {
     formData,
     setFormData,
+    customFieldTemplates,
     handleAddressChange,
     handlePrimaryChange,
     addAddress,
