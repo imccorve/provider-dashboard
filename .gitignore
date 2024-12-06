@@ -1,0 +1,6 @@
+
+# server
+.env
+/server/core/__pycache__
+server/db.sqlite3
+/server/env
