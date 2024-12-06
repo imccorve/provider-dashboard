@@ -9,8 +9,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+  } from "@/components/ui/pagination";
 import PatientTable from "@/components/patient-table";
 import { Patient } from "@/types/patient";
+
+interface PaginatedResponse {
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: Patient[];
+}
 
 interface FilterParams {
   name?: string;
@@ -22,6 +37,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function PatientList() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<FilterParams>({
     name: "",
     status: "",
@@ -29,6 +45,7 @@ export default function PatientList() {
   });
   
   const queryString = new URLSearchParams({
+    page: currentPage.toString(),
     ...Object.fromEntries(
       Object.entries(filters).filter(
         ([key, value]) => value && !(key === "status" && value === "all")
@@ -36,10 +53,12 @@ export default function PatientList() {
     ),
   }).toString();
 
-  const { data } = useSWR<Patient>(
+  const { data } = useSWR<PaginatedResponse>(
     `http://localhost:8000/api/patients/?${queryString}`,
     fetcher
   );
+
+  const totalPages = data ? Math.ceil(data.count / 10) : 0;
 
   return (
     <div className="space-y-4">
@@ -92,9 +111,50 @@ export default function PatientList() {
             </SelectContent>
           </Select>
         </div>
-      </div>
-
       <PatientTable data={data} />
+      </div>
+        {/* Pagination */}
+        {totalPages > 1 && (
+        <div className="mt-4 mb-8">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => {
+                    if (currentPage > 1) {
+                      setCurrentPage(currentPage - 1);
+                      window.scrollTo(0, 0);
+                    }
+                  }}
+                />
+              </PaginationItem>
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <PaginationItem key={i + 1}>
+                  <PaginationLink
+                    onClick={() => {
+                      setCurrentPage(i + 1);
+                      window.scrollTo(0, 0);
+                    }}
+                    isActive={currentPage === i + 1}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => {
+                    if (currentPage < totalPages) {
+                      setCurrentPage(currentPage + 1);
+                      window.scrollTo(0, 0);
+                    }
+                  }}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   );
 }
