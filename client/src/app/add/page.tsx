@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { usePatientForm } from "@/hooks/usePatientForm";
 import { PatientFormFields } from "@/components/patient-form-field";
 import { useSWRConfig } from "swr";
+import { NavigationBar } from "@/components/header";
 
 export default function AddPatient() {
   const router = useRouter();
@@ -46,6 +47,8 @@ export default function AddPatient() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <NavigationBar />
+
       <div className="max-w-3xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Add New Patient</h1>
 

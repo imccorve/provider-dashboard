@@ -7,6 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Patient } from "@/types/patient";
 import EditPanel from "./components/edit-panel";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
+import { NavigationBar } from "@/components/header";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -28,7 +31,15 @@ export default function PatientDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-
+      <NavigationBar
+        containerWidth="max-w-7xl"
+        rightContent={
+          <Button onClick={() => setIsEditingOpen(true)}>
+            <Pencil className="w-4 h-4 mr-2" />
+            Edit Patient Information
+          </Button>
+        }
+      />
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
