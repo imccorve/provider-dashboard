@@ -4,3 +4,5 @@
 /server/core/__pycache__
 server/db.sqlite3
 /server/env
+/server/patients/__pycache__
+/server/patients/migrations/__pycache__
