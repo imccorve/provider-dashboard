@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import useSWR from "swr";
 import { Search } from "lucide-react";
@@ -21,6 +22,7 @@ import {
   } from "@/components/ui/pagination";
 import PatientTable from "@/components/patient-table";
 import { Patient } from "@/types/patient";
+import { Button } from "@/components/ui/button";
 
 interface PaginatedResponse {
     count: number;
@@ -112,6 +114,14 @@ export default function PatientList() {
               <SelectItem value="-last_name">Name Z-A</SelectItem>
             </SelectContent>
           </Select>
+          <div className="flex gap-2">
+              <Link href="/patients/add">
+                <Button variant="default">Add Patient</Button>
+              </Link>
+              <Link href="/settings">
+                <Button variant="default">Settings</Button>
+              </Link>
+            </div>
         </div>
       <PatientTable data={data} />
       </div>
