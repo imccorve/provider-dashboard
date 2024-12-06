@@ -23,6 +23,7 @@ import {
 import PatientTable from "@/components/patient-table";
 import { Patient } from "@/types/patient";
 import { Button } from "@/components/ui/button";
+import PatientStats from "@/components/patient-stats";
 
 interface PaginatedResponse {
     count: number;
@@ -76,6 +77,7 @@ export default function PatientList() {
     
   return (
     <div className="space-y-4">
+      <PatientStats />
       <div className="flex flex-wrap gap-4 items-center justify-between">
         <div className="flex-1 max-w-xl">
           <div className="relative">

@@ -1,5 +1,7 @@
 from rest_framework import viewsets, filters
 from django.db.models import Q
+from django.utils import timezone
+from datetime import timedelta
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters import rest_framework as django_filters
@@ -56,6 +58,11 @@ class PatientViewSet(viewsets.ModelViewSet):
         """
         queryset = super().get_queryset()
         
+        recent_only = self.request.query_params.get('recent', None)
+        if recent_only:
+            thirty_days_ago = timezone.now() - timezone.timedelta(days=30)
+            queryset = queryset.filter(created_at__gte=thirty_days_ago)
+
         return (
             super()
             .get_queryset()
@@ -72,6 +79,37 @@ class PatientViewSet(viewsets.ModelViewSet):
             serializer.save(patient=patient)
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
+
+    @action(detail=False, methods=['get'])
+    def stats(self, request):
+        current_month = timezone.now()
+        thirty_days_ago = timezone.now() - timedelta(days=30)
+        
+        stats = Patient.objects.aggregate(
+            total_patients=Count('id'),
+            new_patients_30d=Count('id', filter=Q(created_at__gte=thirty_days_ago)),
+            current_month_count=Count('id', filter=Q(created_at__month=current_month.month)),
+            last_month_count=Count('id', filter=Q(created_at__month=(current_month - timedelta(days=30)).month))
+        )
+
+        status_counts = [
+            {'status': status, 'count': count}
+            for status, count in Patient.objects.values('status')
+            .annotate(count=Count('id'))
+            .values_list('status', 'count')
+        ]
+
+        # Monthly growth
+        last_month = current_month - timedelta(days=30)
+        current_month_count = Patient.objects.filter(
+            created_at__month=current_month.month
+        ).count()
+        
+        return Response({
+            'status_distribution': status_counts,
+            'new_patients_30d': stats['new_patients_30d'],
+            'total_patients': stats['total_patients'],
+        })
 
 class CustomFieldTemplateViewSet(viewsets.ModelViewSet):
     serializer_class = CustomFieldTemplateSerializer
