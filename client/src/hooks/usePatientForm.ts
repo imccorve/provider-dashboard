@@ -2,6 +2,8 @@ import { CustomFieldTemplate } from '@/types/patient';
 import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 const initialFormState = {
     first_name: "",
     middle_name: "",
