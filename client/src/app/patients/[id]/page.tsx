@@ -21,20 +21,20 @@ export default function PatientDetail() {
 
   const {
     data: patient,
-    error,
+    error: patientError,
     mutate,
   } = useSWR<Patient>(
     `http://localhost:8000/api/patients/${params.id}/`,
     fetcher
   );
 
-  if (error) return <div className="p-6">Failed to load patient</div>;
-  if (!patient) return <div className="p-6">Loading...</div>;
-
-  const { data: customFieldTemplates } = useSWR<CustomFieldTemplate[]>(
+  const { data: customFieldTemplates, error: templatesError } = useSWR<CustomFieldTemplate[]>(
     "http://localhost:8000/api/custom-field-templates/",
     fetcher
   );
+
+  if (patientError) return <div className="p-6">Failed to load patient</div>;
+  if (!patient) return <div className="p-6">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -134,7 +134,7 @@ export default function PatientDetail() {
       </div>
       <EditPanel
         patient={patient}
-        customFieldTemplates={customFieldTemplates}
+        customFieldTemplates={customFieldTemplates || []}
         mutate={mutate}
         isOpen={isEditingOpen}
         onClose={() => setIsEditingOpen(false)}

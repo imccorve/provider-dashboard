@@ -6,67 +6,38 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { usePatientForm } from "@/hooks/usePatientForm";
-import { PatientFormFields } from "@/components/patient-form-field";
 import { useSWRConfig } from "swr";
 import { Patient } from "@/types/patient";
+import { PatientForm, PatientFormValues } from "@/components/patient-form";
 
 interface EditPanelProps {
   patient: Patient;
   isOpen: boolean;
   onClose: () => void;
+  customFieldTemplates: any[];
 }
 
 export default function EditPanel({
   patient,
   isOpen,
   onClose,
+  customFieldTemplates = [],
 }: EditPanelProps) {
+    console.log("EditPanel ");
   const { mutate } = useSWRConfig();
 
-  const {
-    formData,
-    setFormData,
-    customFieldTemplates,
-    handleAddressChange,
-    handlePrimaryChange,
-    addAddress,
-    removeAddress,
-  } = usePatientForm(patient);
-
-  const handleChange = (e) => {
-    const { name, value, templateId } = e.target;
-
-    if (name === "custom_fields") {
-      const newCustomFields = [...formData.custom_fields];
-      const fieldIndex = newCustomFields.findIndex(
-        (f) => f.template_id === templateId
-      );
-      newCustomFields[fieldIndex] = {
-        ...newCustomFields[fieldIndex],
-        value: value,
-      };
-      setFormData((prev) => ({ ...prev, custom_fields: newCustomFields }));
-      return;
-    }
-
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSave = async () => {
-    if (!formData) return;
-
+  const handleSubmit = async (data: PatientFormValues) => {
+    console.log("EditPanel handleSubmit called with:", data);
     const preparedData = {
-      ...formData,
+      ...data,
       created_at: undefined,
       updated_at: undefined,
-      custom_fields: formData.custom_fields
-      .filter((field) => field.value.trim())
-      .map((field) => ({
-        template_id: field.template_id,
-        value: field.value.trim(),
-      })),
+      custom_fields: data.custom_fields
+        .filter((field) => field.value.trim())
+        .map((field) => ({
+          template_id: field.template_id,
+          value: field.value.trim(),
+        })),
     };
 
     try {
@@ -82,7 +53,7 @@ export default function EditPanel({
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Server error details:", errorData);
-        return;
+        throw new Error("Failed to save patient");
       }
 
       await mutate(`http://localhost:8000/api/patients/`);
@@ -90,6 +61,7 @@ export default function EditPanel({
       onClose();
     } catch (error) {
       console.error("Error saving patient:", error);
+      throw error; // Re-throw to let the form component know there was an error
     }
   };
 
@@ -100,27 +72,22 @@ export default function EditPanel({
           <SheetTitle>Edit Patient</SheetTitle>
         </SheetHeader>
 
-        {formData && (
-          <div className="mt-6 space-y-6">
-            <PatientFormFields
-              formData={formData}
-              handleChange={handleChange}
-              handleAddressChange={handleAddressChange}
-              handlePrimaryChange={handlePrimaryChange}
-              addAddress={addAddress}
-              removeAddress={removeAddress}
-              customFieldTemplates={customFieldTemplates}
-              isEditMode={true}
-            />
-
-            <div className="flex justify-end gap-4 mt-6">
-              <Button variant="outline" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button onClick={handleSave}>Save</Button>
-            </div>
-          </div>
-        )}
+        <div className="mt-6">
+          <PatientForm
+            initialData={{
+              ...patient,
+              date_of_birth: patient.date_of_birth.split('T')[0],
+              custom_fields: patient.custom_fields.map(field => ({
+                template_id: field.template_id,
+                value: field.value
+              }))
+            }}
+            customFieldTemplates={customFieldTemplates}
+            onSubmit={handleSubmit}
+            onCancel={onClose}
+            isEditMode={true}
+          />
+        </div>
       </SheetContent>
     </Sheet>
   );
